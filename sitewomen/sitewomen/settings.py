@@ -13,7 +13,7 @@ SECRET_KEY = 'django-insecure-v1harl$8uh=8v2vzii6nj84lr16(a0v__l#1+s3(uiy0&oboi^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1"]
 
 
 # Application definition
@@ -43,7 +43,9 @@ ROOT_URLCONF = 'sitewomen.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR / "templates", 
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
