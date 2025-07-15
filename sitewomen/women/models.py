@@ -12,21 +12,24 @@ class Women(models.Model):
         DRAFT = (0, 'Черновик',)
         PUBLISHED = (1, 'Опубликована',)
 
-    title = models.CharField(max_length=255)
-    slug = models.SlugField(max_length=255, unique=True, db_index=True)
-    content = models.TextField(blank=True)
-    time_create = models.DateTimeField(auto_now_add=True)
-    time_update = models.DateTimeField(auto_now=True)
-    is_published = models.BooleanField(choices=Status.choices, default=Status.PUBLISHED)
+    title = models.CharField(max_length=255, verbose_name='Заголовок')
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='Slug')
+    content = models.TextField(blank=True, verbose_name='Текст статьи')
+    time_create = models.DateTimeField(auto_now_add=True, verbose_name='Время создания')
+    time_update = models.DateTimeField(auto_now=True, verbose_name='Время обновления')
+    is_published = models.BooleanField(choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)),
+                                                     default=Status.PUBLISHED, verbose_name='Статус')
     cat = models.ForeignKey('Category',
                             on_delete=models.PROTECT,
-                            related_name='posts')
-    tags = models.ManyToManyField('TagPost', blank=True, related_name='tags')
+                            related_name='posts',
+                            verbose_name='Категория')
+    tags = models.ManyToManyField('TagPost', blank=True, related_name='tags', verbose_name='Теги')
     husband = models.OneToOneField(to='Husband',
                                    on_delete=models.SET_NULL,
                                    null=True,
                                    blank=True,
-                                   related_name='wom')
+                                   related_name='wom',
+                                   verbose_name='Муж')
 
     objects = models.Manager()
     published = PublishedManager()
@@ -47,8 +50,12 @@ class Women(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=100, db_index=True)
-    slug = models.SlugField(max_length=255, unique=True, db_index=True)
+    name = models.CharField(max_length=100, db_index=True, verbose_name='Категория')
+    slug = models.SlugField(max_length=255, unique=True, db_index=True, verbose_name='Slug')
+
+    class Meta:
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name
