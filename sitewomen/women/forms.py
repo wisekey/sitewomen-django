@@ -20,7 +20,7 @@ class AddPostForm(forms.ModelForm):
 
     class Meta:
         model = Women
-        fields = ("title", "slug", "content", "is_published", "cat", "husband", "tags")
+        fields = ("title", "slug", "content", "photos", "is_published", "cat", "husband", "tags")
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-input"}),
             "content": forms.Textarea(attrs={"cols": 50, "rows": 5})
@@ -38,3 +38,8 @@ class AddPostForm(forms.ModelForm):
         
         return title
     
+
+class UploadFileForm(forms.Form):
+    file = forms.ImageField(
+        label="Файл"
+    )

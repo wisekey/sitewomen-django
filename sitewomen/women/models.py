@@ -34,6 +34,13 @@ class Women(models.Model):
             ),
         ],
     )
+    photos = models.ImageField(
+        upload_to="photos/%Y/%m/%d/",
+        default=None,
+        blank=True,
+        null=True,
+        verbose_name="Фото"
+    )
     content = models.TextField(
         blank=True,
         verbose_name='Текст статьи'
@@ -142,4 +149,7 @@ class Husband(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
+class UploadFiles(models.Model):
+    file = models.FileField(upload_to="uploads_model")
