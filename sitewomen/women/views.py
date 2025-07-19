@@ -1,8 +1,9 @@
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render 
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from .models import Category, Women, TagPost
 from .forms import AddPostForm
+from typing import Any
 
 menu = [
     {
@@ -26,7 +27,7 @@ menu = [
 
 def index(request: HttpRequest) -> HttpResponse:
     posts = Women.published.all().select_related('cat')
-    data = {
+    data: dict[str, Any] = {
             'title': 'Главная страница',
             'menu': menu,
             'posts': posts,
@@ -39,10 +40,10 @@ def about(request: HttpRequest):
     return render(request, 'women/about.html', {'title': 'О сайте', "menu": menu})
 
 
-def show_post(request, post_slug):
+def show_post(request: HttpRequest, post_slug: str):
     post = get_object_or_404(Women, slug=post_slug)
 
-    data = {
+    data: dict[str, Any] = {
         "title": post.title,
         "menu": menu,
         "post": post,
@@ -52,15 +53,21 @@ def show_post(request, post_slug):
     return render(request, 'women/post.html', context=data)
 
 
-def addpage(request):
+def addpage(request: HttpRequest):
     if request.method == 'POST':
         form = AddPostForm(request.POST)
         if form.is_valid():
-            print(form.cleaned_data)
+            # try:
+            #     Women.objects.create(**form.cleaned_data)
+            #     return redirect("home")
+            # except:
+            #     form.add_error(None, "Ошибка добавления поста")
+            form.save()
+            return redirect("home")
     else:
         form = AddPostForm()
              
-    data = {'menu': menu,
+    data: dict[str, Any] = {'menu': menu,
             'title': 'Добавление статьи',
             'form': form,
     }
@@ -68,19 +75,19 @@ def addpage(request):
     return render(request, 'women/addpage.html', context=data)
 
 
-def contact(request):
+def contact(request: HttpRequest):
     return HttpResponse("Контакты")
 
 
-def login(request):
+def login(request: HttpRequest):
     return HttpResponse("Логин")
 
 
-def show_category(request, cat_slug):
+def show_category(request: HttpRequest, cat_slug: str):
     category = get_object_or_404(Category, slug=cat_slug)
     posts = Women.published.filter(cat__id=category.pk).select_related('cat')
 
-    data = {
+    data: dict[str, Any] = {
             'title': f'Рубрика: {category.name}',
             'menu': menu,
             'posts': posts,
@@ -89,11 +96,11 @@ def show_category(request, cat_slug):
     return render(request, "women/index.html", data)
 
 
-def show_tag_postlit(request, tag_slug):
-    tag = get_object_or_404(TagPost, slug=tag_slug)
+def show_tag_postlit(request: HttpRequest, tag_slug: str):
+    tag: TagPost = get_object_or_404(TagPost, slug=tag_slug)
     posts = tag.tags.filter(is_published=Women.Status.PUBLISHED).select_related('cat')
     
-    data = {
+    data: dict[str, Any] = {
         'title': f'Тег: {tag.tag}',
         'menu': menu,
         'posts': posts,
