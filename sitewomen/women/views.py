@@ -4,6 +4,8 @@ from django.shortcuts import get_object_or_404, redirect
 from .models import Category, Women, TagPost, UploadFiles
 from .forms import AddPostForm, UploadFileForm
 from typing import Any
+from django.views import View
+from django.views.generic import TemplateView, ListView
 
 
 menu = [
@@ -26,21 +28,18 @@ menu = [
 ]
 
 
-def index(request: HttpRequest) -> HttpResponse:
-    posts = Women.published.all().select_related('cat')
-    data: dict[str, Any] = {
+class WomenHome(ListView):
+    # model = Women
+    template_name = "women/index.html"
+    context_object_name = "posts"
+    extra_context = {
             'title': 'Главная страница',
             'menu': menu,
-            'posts': posts,
             'cat_selected': 0,
     }
-    return render(request, 'women/index.html', context=data)
 
-
-# def handle_uploaded_file(f):
-#     with open(f"uploads/{f.name}", mode="wb+") as destination:
-#         for chunk in f.chunks():
-#             destination.write(chunk)
+    def get_queryset(self):
+        return Women.published.all().select_related("cat")
 
 
 def about(request: HttpRequest):
@@ -74,27 +73,38 @@ def show_post(request: HttpRequest, post_slug: str):
     return render(request, 'women/post.html', context=data)
 
 
-def addpage(request: HttpRequest):
-    if request.method == 'POST':
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            # try:
-            #     Women.objects.create(**form.cleaned_data)
-            #     return redirect("home")
-            # except:
-            #     form.add_error(None, "Ошибка добавления поста")
-            form.save()
-            return redirect("home")
-    else:
+class AddPage(View):
+    def get(self, request):
+        """
+        Обрабатывает get-запрос и возвращает отображение пустой формы
+        """
         form = AddPostForm()
-             
-    data: dict[str, Any] = {'menu': menu,
+        data: dict[str, Any] = {
+            'menu': menu,
             'title': 'Добавление статьи',
             'form': form,
-    }
+        }
 
-    return render(request, 'women/addpage.html', context=data)
+        return render(request, 'women/addpage.html', context=data)
 
+    def post(self, request):
+        """
+        Обрабатывает post-запрос и, после проверки на валидность данных
+        формы сохраняет ее, далее перенаправляет на главную страницу. Если
+        данные невалидны снова отображается форма
+        """
+        form = AddPostForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+        
+        data: dict[str, Any] = {
+            'menu': menu,
+            'title': 'Добавление статьи',
+            'form': form,
+        }
+
+        return render(request, 'women/addpage.html', context=data)
 
 def contact(request: HttpRequest):
     return HttpResponse("Контакты")
@@ -104,17 +114,32 @@ def login(request: HttpRequest):
     return HttpResponse("Логин")
 
 
-def show_category(request: HttpRequest, cat_slug: str):
-    category = get_object_or_404(Category, slug=cat_slug)
-    posts = Women.published.filter(cat__id=category.pk).select_related('cat')
+class WomenCategory(ListView):
+    """
+    Класс реализует обработку вывода женщин по категория.
+    """
+    template_name = "women/index.html"
+    context_object_name = "posts"
+    allow_empty = False
 
-    data: dict[str, Any] = {
-            'title': f'Рубрика: {category.name}',
-            'menu': menu,
-            'posts': posts,
-            'cat_selected': category.pk,
-    }
-    return render(request, "women/index.html", data)
+    def get_queryset(self):
+        """
+        Возвращает множество записей, фильтруя их по слагу, который берется
+        из параметра запроса
+        """
+        return Women.published.filter(
+            cat__slug=self.kwargs["cat_slug"]).select_related("cat")
+    
+    def get_context_data(self, **kwargs):
+        """
+        Передает данные в контекст для отображения
+        """
+        context = super().get_context_data(**kwargs)
+        cat = context["posts"][0].cat
+        context["title"] = f"Категория - {cat.name}"
+        context["menu"] = menu
+        context["cat_selected"] = cat.pk
+        return context
 
 
 def show_tag_postlit(request: HttpRequest, tag_slug: str):
@@ -129,6 +154,8 @@ def show_tag_postlit(request: HttpRequest, tag_slug: str):
     }
 
     return render(request, 'women/index.html', context=data)
+
+
 
 def page_not_found(request: HttpRequest, exception: Http404) -> HttpResponseNotFound:
     return HttpResponseNotFound("<h1>Page Not Found</h1>")
