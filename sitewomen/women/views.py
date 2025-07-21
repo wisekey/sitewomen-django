@@ -6,7 +6,7 @@ from .models import Category, Women, TagPost, UploadFiles
 from .forms import AddPostForm, UploadFileForm
 from typing import Any
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, CreateView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 
 
 menu = [
@@ -105,6 +105,17 @@ class AddPage(CreateView):
         "menu": menu
     }
 
+
+class UpdatePage(UpdateView):
+    model = Women
+    fields = ["title", "content", "photos", "cat"]
+    template_name = "women/addpage.html"
+    success_url = reverse_lazy("home")
+    extra_context = {
+        "title": "Обновление статьи",
+        "menu": menu,
+    }
+    
 
 def contact(request: HttpRequest):
     return HttpResponse("Контакты")
