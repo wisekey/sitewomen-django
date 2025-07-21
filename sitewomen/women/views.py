@@ -1,11 +1,12 @@
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, Http404
-from django.shortcuts import render 
+from django.shortcuts import render
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
 from .models import Category, Women, TagPost, UploadFiles
 from .forms import AddPostForm, UploadFileForm
 from typing import Any
 from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView
 
 
 menu = [
@@ -96,38 +97,14 @@ class ShowPost(DetailView):
         )
 
 
-class AddPage(View):
-    def get(self, request):
-        """
-        Обрабатывает get-запрос и возвращает отображение пустой формы
-        """
-        form = AddPostForm()
-        data: dict[str, Any] = {
-            'menu': menu,
-            'title': 'Добавление статьи',
-            'form': form,
-        }
+class AddPage(CreateView):
+    form_class = AddPostForm
+    template_name = "women/addpage.html"
+    extra_context = {
+        "title": "Добавление статьи",
+        "menu": menu
+    }
 
-        return render(request, 'women/addpage.html', context=data)
-
-    def post(self, request):
-        """
-        Обрабатывает post-запрос и, после проверки на валидность данных
-        формы сохраняет ее, далее перенаправляет на главную страницу. Если
-        данные невалидны снова отображается форма
-        """
-        form = AddPostForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect("home")
-        
-        data: dict[str, Any] = {
-            'menu': menu,
-            'title': 'Добавление статьи',
-            'form': form,
-        }
-
-        return render(request, 'women/addpage.html', context=data)
 
 def contact(request: HttpRequest):
     return HttpResponse("Контакты")
