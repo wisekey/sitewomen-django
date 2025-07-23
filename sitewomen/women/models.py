@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.core.validators import MinLengthValidator, MaxLengthValidator
-
+from django.contrib.auth import get_user_model
 
 class PublishedManager(models.Manager):
     def get_queryset(self):
@@ -77,6 +77,13 @@ class Women(models.Model):
         blank=True,
         related_name='wom',
         verbose_name='Муж'
+    )
+    author = models.ForeignKey(
+        get_user_model(),
+        on_delete=models.SET_NULL
+        related_name="posts",
+        null=True,
+        default=None    
     )
 
     objects = models.Manager()
