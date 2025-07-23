@@ -30,7 +30,7 @@ def about(request: HttpRequest):
     page_obj = paginator.get_page(page_number)
 
 
-    return render(request, 'women/abow ut.html', {
+    return render(request, 'women/about.html', {
         "title": "О сайте",
         "page_obj": page_obj
     })
