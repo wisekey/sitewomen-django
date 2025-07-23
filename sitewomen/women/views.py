@@ -9,7 +9,8 @@ from typing import Any
 from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.core.paginator import Paginator
-
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class WomenHome(DataMixin, ListView):
     model = Women
@@ -22,6 +23,7 @@ class WomenHome(DataMixin, ListView):
         return Women.published.all().select_related("cat")
 
 
+@login_required
 def about(request: HttpRequest):
     contact_list = Women.objects.all()
     paginator = Paginator(contact_list, 3)
@@ -54,10 +56,15 @@ class ShowPost(DataMixin, DetailView):
         )
 
 
-class AddPage(DataMixin, CreateView):
+class AddPage(LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = "women/addpage.html"
     title_page = "Добавление статьи"
+
+    def form_valid(self, form):
+        w = form.save(commit=False)
+        w.author = self.request.user
+        return super().form_valid(form)
 
 
 class UpdatePage(UpdateView):

@@ -1,37 +1,19 @@
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from .forms import LoginUserForm
-from django.urls import reverse
-from django.contrib.auth.views import LoginView
-from django.contrib.auth.forms import AuthenticationForm
+from .forms import LoginUserForm, RegisterUserForm
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
 
 
 class LoginUser(LoginView):
-    form_class = AuthenticationForm
-    template_name = "users.login.html"
-    extra_context = {"title": }
-
-def login_user(request):
-    if request.method == "POST":
-        form = LoginUserForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            user = authenticate(
-                request,
-                username=cd["username"],
-                password=cd["password"]
-            )
-            
-            if user and user.is_active:
-                login(request, user)
-                return HttpResponseRedirect(reverse("home"))
-    else:
-        form = LoginUserForm()    
-
-    return render(request, "users/login.html", {"form": form})
-
-
-def logout_user(request):
-    logout(request)
-    return HttpResponseRedirect(reverse("users:login"))
+    form_class = LoginUserForm
+    template_name = "users/login.html"
+    extra_context = {"title": "Авторизация"}
+    
+    
+class RegisterUser(CreateView):
+    form_class = RegisterUserForm
+    template_name = "users/register.html"
+    extra_context = {
+        "tutle": "Регистрация"
+    }
+    success_url = reverse_lazy("users:login")

@@ -80,10 +80,10 @@ class Women(models.Model):
     )
     author = models.ForeignKey(
         get_user_model(),
-        on_delete=models.SET_NULL
+        on_delete=models.SET_NULL,
         related_name="posts",
         null=True,
-        default=None    
+        default=None   
     )
 
     objects = models.Manager()
