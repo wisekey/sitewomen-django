@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block content %}
 <h1>Авторизация</h1>
 
-<form method="post">
+<form method="post" enctype="multipart/form-data">
   {% csrf_token %}
   <input type="hidden" name="next" value="{{ next }}" />
   <div class="form-error">{{ form.non_field_errors }}</div>
@@ -15,4 +15,14 @@
   <input type="submit" value="Войти" />
   <p><a href="{% url 'users:password_reset' %}">Забыли пароль?</a></p>
 </form>
+<hr style="opacity: 20%;">
+<p>
+  <a href="{% url 'social:begin' 'github' %}">
+    <img src="/media/social_auth/github.png" alt="Github" width=60>
+  </a>
+
+  <a href="{% url 'social:begin' 'vk-oauth2' %}">
+    <img src="/media/social_auth/vk.png" alt="Vkontakte" width=60>
+  </a>
+</p>
 {% endblock content %}

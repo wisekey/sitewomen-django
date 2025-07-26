@@ -6,7 +6,7 @@ SECRET_KEY = 'django-insecure-v1harl$8uh=8v2vzii6nj84lr16(a0v__l#1+s3(uiy0&oboi^
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ["127.0.0.1", "localhost", "sitewomen.ru"]
 
 INTERNAL_IPS = [
     '127.0.0.1',
@@ -21,9 +21,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "django_extensions",
-    'debug_toolbar',
     'women.apps.WomenConfig',
     "users.apps.UsersConfig",
+    "social_django",
+    'debug_toolbar',
+    "captcha"
 ]
 
 MIDDLEWARE = [
@@ -61,8 +63,12 @@ WSGI_APPLICATION = 'sitewomen.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'sitewomen_db',
+        'USER': 'sitewomen',
+        'PASSWORD': '1234',
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
@@ -107,6 +113,8 @@ LOGOUT_REDIRECT_URL = "home"
 LOGIN_URL = "users:login"
 
 AUTHENTICATION_BACKENDS = [
+    "social_core.backends.github.GithubOAuth2",
+    'social_core.backends.vk.VKOAuth2',
     "django.contrib.auth.backends.ModelBackend",
     "users.authentication.EmailAuthBackend",
 ]
@@ -126,3 +134,24 @@ EMAIL_ADMIN = EMAIL_HOST_USER
 
 AUTH_USER_MODEL = "users.User"
 DEFAULT_USER_IMAGE = "/media/users/default.png"
+
+SOCIAL_AUTH_GITHUB_KEY = 'Ov23liObVBmGTm7wO37K'
+SOCIAL_AUTH_GITHUB_SECRET = '15e76072a7a741e3c97393cf83cb3e889bb3dc8c'
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.social_auth.associate_by_email',
+    'social_core.pipeline.user.create_user',
+    'users.pipeline.new_users_handler',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = '53965486'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'KO4HN7qeFreHCpYjBbUW'
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']

@@ -90,7 +90,8 @@ class ProfileUserForm(forms.ModelForm):
             attrs={
                 "class": "form-input"
             }
-        )
+        ),
+        required=False
     )
     
     this_year = datetime.date.today().year
