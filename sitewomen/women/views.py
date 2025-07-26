@@ -1,16 +1,14 @@
 from django.http import HttpRequest, HttpResponse, HttpResponseNotFound, Http404
 from django.shortcuts import render
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from .models import Category, Women, TagPost, UploadFiles
-from .forms import AddPostForm, UploadFileForm
+from .models import Category, Women, TagPost
+from .forms import AddPostForm
 from .utils import DataMixin
-from typing import Any
-from django.views import View
-from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.core.paginator import Paginator
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 class WomenHome(DataMixin, ListView):
     model = Women
@@ -56,10 +54,11 @@ class ShowPost(DataMixin, DetailView):
         )
 
 
-class AddPage(LoginRequiredMixin, DataMixin, CreateView):
+class AddPage(PermissionRequiredMixin, LoginRequiredMixin, DataMixin, CreateView):
     form_class = AddPostForm
     template_name = "women/addpage.html"
     title_page = "Добавление статьи"
+    permission_required = "women.add_women"
 
     def form_valid(self, form):
         w = form.save(commit=False)
@@ -67,15 +66,16 @@ class AddPage(LoginRequiredMixin, DataMixin, CreateView):
         return super().form_valid(form)
 
 
-class UpdatePage(UpdateView):
+class UpdatePage(PermissionRequiredMixin, UpdateView):
     model = Women
     fields = ["title", "content", "photos", "cat"]
     template_name = "women/addpage.html"
     success_url = reverse_lazy("home")
     title_page = "Обновление статьи"
-    extra_object_name = ""
+    permission_required = "women.change_women"
 
 
+@permission_required(perm="women.add_women", raise_exception=True)
 def contact(request: HttpRequest):
     return HttpResponse("Контакты")
 

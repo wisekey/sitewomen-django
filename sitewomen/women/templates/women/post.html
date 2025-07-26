@@ -11,6 +11,10 @@
 </ul>
 {% endif %}
 {% endwith %}
+<hr style="opacity: 10%;">
+{% if perms.women.change_women %}
+<a href="{% url 'edit_page' post.slug %}">Редактировать пост</a>
+{% endif %}
 {% endblock breadcrumbs %}
 
 {% block content %}

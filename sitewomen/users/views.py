@@ -5,7 +5,7 @@ from django.views.generic import CreateView
 from django.views.generic.edit import UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
-
+from sitewomen import settings
 
 class LoginUser(LoginView):
     form_class = LoginUserForm
@@ -27,7 +27,8 @@ class ProfileUser(LoginRequiredMixin, UpdateView):
     form_class = ProfileUserForm
     template_name = "users/profile.html"
     extra_context = {
-        "title": "Профиль пользователя"
+        "title": "Профиль пользователя",
+        "default_image": settings.DEFAULT_USER_IMAGE
     }
     
     def get_success_url(self):

@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 from django.utils.safestring import mark_safe
-from .models import Women, Category
+from .models import Women, Category, TagPost
 
 
 class MarriedFilter(admin.SimpleListFilter):
@@ -56,3 +56,8 @@ class WomenAdmin(admin.ModelAdmin):
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', )
     list_display_links = ('id', 'name', )
+
+
+@admin.register(TagPost)
+class TagPostAdmin(admin.ModelAdmin):
+    list_display = ("tag", "slug")

@@ -5,22 +5,24 @@
 
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
+
     {% if user.photo %}
-    <p><img src="{{ user.photo.url }}" alt=""></p>
-    
+      <p><img src="{{ user.photo.url }}" alt="Фотография пользователя"></p>
     {% else %}
-    <p><img src="/media/users/default.png" alt=""></p>
+      <p><img src="{{ default_image }}" alt="Фотография пользователя"></p>
     {% endif %}
     
-    <div class="form-error">{{ form.non_field_errors}}</div>
+    <div class="form-error">{{ form.non_field_errors }}</div>
     {% for f in form %}
-    <p><label for="form-label" for="{{ form.is_for_label }}">{{ f.label }}</label>{{ f }}</p>
-    <div class="form-error">{{ f.errors }}</div>
+      <p><label for="form-label" for="{{ form.is_for_label }}">{{ f.label }}</label>{{ f }}</p>
+      <div class="form-error">{{ f.errors }}</div>
     {% endfor %}
 
     <p><button type="submit">Сохранить</button></p>
 </form>
+
 <hr>
-<p><a href="{% url 'users:password_change' %}">Сменить пароль</a></p>
+
+<p><a href="{% url 'users:password_change' %}">Изменить пароль</a></p>
 
 {% endblock content %}
