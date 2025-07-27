@@ -1,8 +1,7 @@
 from django import forms
 from .models import Category, Husband, Women
-from django.core.validators import MinLengthValidator, MaxLengthValidator
 from django.core.exceptions import ValidationError
-
+from captcha.fields import CaptchaField
 
 class AddPostForm(forms.ModelForm):
     
@@ -44,3 +43,22 @@ class UploadFileForm(forms.Form):
         label="Файл"
     )
     
+
+class ContactForm(forms.Form):
+    name = forms.CharField(
+        label="Имя",
+        max_length=255
+    )
+    email = forms.EmailField(
+        label="E-mail"
+    )
+    content = forms.CharField(
+        label="Пожелания",
+        widget=forms.Textarea(
+            attrs={
+                "cols": 60,
+                "rows": 20
+            }
+        )
+    )
+    captcha = CaptchaField() 
