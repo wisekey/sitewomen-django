@@ -3,12 +3,14 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from .models import Category, Women, TagPost
-from .forms import AddPostForm
+from .forms import AddPostForm, ContactForm
 from .utils import DataMixin
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, FormView
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.core.cache import cache
+
 
 class WomenHome(DataMixin, ListView):
     model = Women
@@ -18,7 +20,11 @@ class WomenHome(DataMixin, ListView):
     cat_selected = 0
 
     def get_queryset(self):
-        return Women.published.all().select_related("cat")
+        w_lst = cache.get("women_posts")
+        if not w_lst:
+            w_lst = Women.published.all().select_related("cat")
+            cache.set("women_posts", w_lst, 60)
+        return w_lst
 
 
 @login_required
@@ -75,9 +81,17 @@ class UpdatePage(PermissionRequiredMixin, UpdateView):
     permission_required = "women.change_women"
 
 
-@permission_required(perm="women.add_women", raise_exception=True)
-def contact(request: HttpRequest):
-    return HttpResponse("Контакты")
+
+class ContactFormView(LoginRequiredMixin, DataMixin, FormView):
+    form_class = ContactForm
+    template_name = "women/contact.html"
+    success_url = reverse_lazy("home")
+    title_page = "Обратная связь"
+    
+    def form_valid(self, form):
+        print(form.cleaned_data)
+        return super().form_valid(form)
+
 
 
 def login(request: HttpRequest):
