@@ -20,6 +20,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.sites",
+    "django.contrib.sitemaps",
     "django_extensions",
     'women.apps.WomenConfig',
     "users.apps.UsersConfig",
@@ -27,6 +29,8 @@ INSTALLED_APPS = [
     'debug_toolbar',
     "captcha"
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'debug_toolbar.middleware.DebugToolbarMiddleware',
